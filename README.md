@@ -1,1 +1,18 @@
 # Graphics-Pipelines-2022
+
+The user interacts with my executable by simply pressing 1,2, and 3 to swap between 3 scenes each demonstrating a shader technique. Namely, deferred shading on 1, high dynamic range (HDR) rendering on 2 and animated vertices on 3.
+
+Most of the program is driven by the source file sceneBasic_Uniform. The sceneBasic_Uniform inherits from the abstract class scene.h; with sceneBasic.cpp implementing the methods, innitScene, update, render and resize. The fileSceneRunner.h uses the class sceneBasic_Uniform calling its update and render methods for each frame. In sceneRunner.h ‘s main update loop, I check if the user has pressed the 1,2 or 3 key, this value swaps between each demo, of each shader technique.
+
+Upon the user pressing the “1” key deferring rendering will run. Deferred rendering first calls setupDeferFBO which sets up three textures so it can store all the positions, normals and colours into a textureBuffer commonly called a GBuffer. In this case the vertex shader simply passes over the position, normal and texture coordinate to the fragment shader. The fragment shader runs two passes. Pass 1 simply renders the scene and records the positions, normals and colour data into a texture. In pass 2 the geometry framebuffer is swapped back to the original framebuffer and the position, normals and colours are all looked up from a texture which is far quicker.
+
+Upon pressing the 2 key, HDR rendering will runHDR rendering also has two passes. It first computes the luminance of each pixel mapping it into a much greater range than the 256 brightness values open gl works with by default. In the second pass the values are then remapped back into that normal range. Also gamma correction was attempted.
+
+When pressing the 3 key an example of vertex animation will be rendered. This effect is largely driven by the vertex shader. 3 uniform variables define a frequency, velocity and amplitude a flat plane will animate at. The vertex shader will be called for each frame and the time variable will be updated each frame. By multiplying the velocity by the current time we can animate over time the Y value of our ground plane. The fragment shader for this technique is much simpler, this is just a standard implementation of blinn phong shading taking our lights and materials, ambient, diffuse and specular values and calculating the light intensity for the fragment. Its important in the vertex shader we use a normal matrix to re-calculate the surface normal each frame as it will be different each frame as the surface is manipulated. 
+
+It is often hard to get rendering techniques and pipelines separate. The two issues are, two rendering techniques that are very similar so will share a lot of the same setup code, making it hard to get a clear separation and also getting two shader techniques to work together that are very different making it hard to integrate them simply. There probably needs to be a few more a layers of abstraction to make it easier to dynamically swap in and out different shader files, certainly this approach is very manual and the code has quickly become harder to follow. This is perhaps not an open gl understanding issue however and more of a C++ and program design experience issue
+
+I think I’ve achieved a nice demo of these techniques that could be easily extended to other shader techniques. I would have liked to have combined HDR and deferred rendering into one pipeline as this would be a blend of efficiency and graphical quality but this proved difficult. I certainly would extend and experiment with vertex animation further.
+
+
+Link to Youtube Video: https://youtu.be/53Aganq2vI8 
